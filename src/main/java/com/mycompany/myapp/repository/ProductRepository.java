@@ -1,11 +1,13 @@
 package com.mycompany.myapp.repository;
 
 import com.mycompany.myapp.domain.Product;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.*;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -40,4 +42,54 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     @Query("select product from Product product left join fetch product.category left join fetch product.user where product.id =:id")
     Optional<Product> findOneWithToOneRelationships(@Param("id") Long id);
+
+    // Product filtering methods
+    @Query(
+        "select product from Product product left join fetch product.category left join fetch product.user where product.price >= :minPrice and product.price <= :maxPrice"
+    )
+    List<Product> findByPriceBetween(@Param("minPrice") BigDecimal minPrice, @Param("maxPrice") BigDecimal maxPrice);
+
+    @Query(
+        "select product from Product product left join fetch product.category left join fetch product.user where product.category.name = :categoryName"
+    )
+    List<Product> findByCategoryName(@Param("categoryName") String categoryName);
+
+    @Query(
+        "select product from Product product left join fetch product.category left join fetch product.user where product.category.name in :categoryNames"
+    )
+    List<Product> findByCategoryNames(@Param("categoryNames") List<String> categoryNames);
+
+    @Query(
+        "select product from Product product left join fetch product.category left join fetch product.user where product.rating >= :minRating"
+    )
+    List<Product> findByRatingGreaterThanEqual(@Param("minRating") Double minRating);
+
+    @Query(
+        "select product from Product product left join fetch product.category left join fetch product.user where product.price >= :minPrice"
+    )
+    List<Product> findByPriceGreaterThanEqual(@Param("minPrice") BigDecimal minPrice);
+
+    @Query(
+        "select product from Product product left join fetch product.category left join fetch product.user where product.price <= :maxPrice"
+    )
+    List<Product> findByPriceLessThanEqual(@Param("maxPrice") BigDecimal maxPrice);
+
+    @Query(
+        "select product from Product product left join fetch product.category left join fetch product.user where product.price >= :minPrice and product.price <= :maxPrice and product.category.name = :categoryName"
+    )
+    List<Product> findByPriceBetweenAndCategoryName(
+        @Param("minPrice") BigDecimal minPrice,
+        @Param("maxPrice") BigDecimal maxPrice,
+        @Param("categoryName") String categoryName
+    );
+
+    @Query(
+        "select product from Product product left join fetch product.category left join fetch product.user where product.price >= :minPrice and product.price <= :maxPrice and product.category.name = :categoryName and product.rating >= :minRating"
+    )
+    List<Product> findByPriceBetweenAndCategoryNameAndRatingGreaterThanEqual(
+        @Param("minPrice") BigDecimal minPrice,
+        @Param("maxPrice") BigDecimal maxPrice,
+        @Param("categoryName") String categoryName,
+        @Param("minRating") Double minRating
+    );
 }

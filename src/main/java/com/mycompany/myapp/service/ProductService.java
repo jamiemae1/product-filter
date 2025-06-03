@@ -2,6 +2,8 @@ package com.mycompany.myapp.service;
 
 import com.mycompany.myapp.domain.Product;
 import com.mycompany.myapp.repository.ProductRepository;
+import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -121,5 +123,105 @@ public class ProductService {
     public void delete(Long id) {
         LOG.debug("Request to delete Product : {}", id);
         productRepository.deleteById(id);
+    }
+
+    // Product filtering methods for Cucumber scenarios
+
+    /**
+     * Find products by price range.
+     *
+     * @param minPrice the minimum price.
+     * @param maxPrice the maximum price.
+     * @return the list of products.
+     */
+    @Transactional(readOnly = true)
+    public List<Product> findByPriceRange(BigDecimal minPrice, BigDecimal maxPrice) {
+        LOG.debug("Request to find Products by price range : {} - {}", minPrice, maxPrice);
+        return productRepository.findByPriceBetween(minPrice, maxPrice);
+    }
+
+    /**
+     * Find products by category name.
+     *
+     * @param categoryName the category name.
+     * @return the list of products.
+     */
+    @Transactional(readOnly = true)
+    public List<Product> findByCategoryName(String categoryName) {
+        LOG.debug("Request to find Products by category name : {}", categoryName);
+        return productRepository.findByCategoryName(categoryName);
+    }
+
+    /**
+     * Find products by multiple category names.
+     *
+     * @param categoryNames the list of category names.
+     * @return the list of products.
+     */
+    @Transactional(readOnly = true)
+    public List<Product> findByCategoryNames(List<String> categoryNames) {
+        LOG.debug("Request to find Products by category names : {}", categoryNames);
+        return productRepository.findByCategoryNames(categoryNames);
+    }
+
+    /**
+     * Find products by minimum rating.
+     *
+     * @param minRating the minimum rating.
+     * @return the list of products.
+     */
+    @Transactional(readOnly = true)
+    public List<Product> findByMinimumRating(Double minRating) {
+        LOG.debug("Request to find Products by minimum rating : {}", minRating);
+        return productRepository.findByRatingGreaterThanEqual(minRating);
+    }
+
+    /**
+     * Find products by maximum price.
+     *
+     * @param maxPrice the maximum price.
+     * @return the list of products.
+     */
+    @Transactional(readOnly = true)
+    public List<Product> findByMaxPrice(BigDecimal maxPrice) {
+        LOG.debug("Request to find Products by maximum price : {}", maxPrice);
+        return productRepository.findByPriceLessThanEqual(maxPrice);
+    }
+
+    /**
+     * Find products by minimum price.
+     *
+     * @param minPrice the minimum price.
+     * @return the list of products.
+     */
+    @Transactional(readOnly = true)
+    public List<Product> findByMinPrice(BigDecimal minPrice) {
+        LOG.debug("Request to find Products by minimum price : {}", minPrice);
+        return productRepository.findByPriceGreaterThanEqual(minPrice);
+    }
+
+    /**
+     * Find products by price range and category.
+     *
+     * @param minPrice the minimum price.
+     * @param maxPrice the maximum price.
+     * @param categoryName the category name.
+     * @return the list of products.
+     */
+    @Transactional(readOnly = true)
+    public List<Product> findByPriceRangeAndCategory(BigDecimal minPrice, BigDecimal maxPrice, String categoryName) {
+        LOG.debug("Request to find Products by price range and category : {} - {} in {}", minPrice, maxPrice, categoryName);
+        return productRepository.findByPriceBetweenAndCategoryName(minPrice, maxPrice, categoryName);
+    }
+
+    /**
+     * Find all products without pagination.
+     *
+     * @return the list of all products.
+     */
+    @Transactional(readOnly = true)
+    public List<Product> findAllProducts() {
+        LOG.debug("Request to find all Products");
+        return productRepository.findAllWithToOneRelationships();
     }
 }

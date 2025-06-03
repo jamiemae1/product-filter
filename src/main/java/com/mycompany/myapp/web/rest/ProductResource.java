@@ -6,6 +6,7 @@ import com.mycompany.myapp.service.ProductService;
 import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -18,7 +19,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
@@ -184,5 +194,156 @@ public class ProductResource {
         return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
             .build();
+    }
+
+    // Product filtering endpoints
+
+    /**
+     * {@code GET  /products/filter/price-range} : get products by price range.
+     *
+     * @param minPrice the minimum price.
+     * @param maxPrice the maximum price.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of products in body.
+     */
+    @GetMapping("/filter/price-range")
+    public ResponseEntity<List<Product>> getProductsByPriceRange(
+        @RequestParam("minPrice") BigDecimal minPrice,
+        @RequestParam("maxPrice") BigDecimal maxPrice
+    ) {
+        LOG.debug("REST request to get Products by price range : {} - {}", minPrice, maxPrice);
+        List<Product> products = productService.findByPriceRange(minPrice, maxPrice);
+        return ResponseEntity.ok().body(products);
+    }
+
+    /**
+     * {@code GET  /products/filter/category} : get products by category.
+     *
+     * @param categoryName the category name.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of products in body.
+     */
+    @GetMapping("/filter/category")
+    public ResponseEntity<List<Product>> getProductsByCategory(@RequestParam("categoryName") String categoryName) {
+        LOG.debug("REST request to get Products by category : {}", categoryName);
+        List<Product> products = productService.findByCategoryName(categoryName);
+        return ResponseEntity.ok().body(products);
+    }
+
+    /**
+     * {@code GET  /products/filter/categories} : get products by multiple categories.
+     *
+     * @param categoryNames the category names.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of products in body.
+     */
+    @GetMapping("/filter/categories")
+    public ResponseEntity<List<Product>> getProductsByCategories(@RequestParam("categoryNames") List<String> categoryNames) {
+        LOG.debug("REST request to get Products by categories : {}", categoryNames);
+        List<Product> products = productService.findByCategoryNames(categoryNames);
+        return ResponseEntity.ok().body(products);
+    }
+
+    /**
+     * {@code GET  /products/filter/rating} : get products by minimum rating.
+     *
+     * @param minRating the minimum rating.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of products in body.
+     */
+    @GetMapping("/filter/rating")
+    public ResponseEntity<List<Product>> getProductsByRating(@RequestParam("minRating") Double minRating) {
+        LOG.debug("REST request to get Products by minimum rating : {}", minRating);
+        List<Product> products = productService.findByMinimumRating(minRating);
+        return ResponseEntity.ok().body(products);
+    }
+
+    /**
+     * {@code GET  /products/filter/max-price} : get products by maximum price.
+     *
+     * @param maxPrice the maximum price.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of products in body.
+     */
+    @GetMapping("/filter/max-price")
+    public ResponseEntity<List<Product>> getProductsByMaxPrice(@RequestParam("maxPrice") BigDecimal maxPrice) {
+        LOG.debug("REST request to get Products by maximum price : {}", maxPrice);
+        List<Product> products = productService.findByMaxPrice(maxPrice);
+        return ResponseEntity.ok().body(products);
+    }
+
+    /**
+     * {@code GET  /products/filter/min-price} : get products by minimum price.
+     *
+     * @param minPrice the minimum price.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of products in body.
+     */
+    @GetMapping("/filter/min-price")
+    public ResponseEntity<List<Product>> getProductsByMinPrice(@RequestParam("minPrice") BigDecimal minPrice) {
+        LOG.debug("REST request to get Products by minimum price : {}", minPrice);
+        List<Product> products = productService.findByMinPrice(minPrice);
+        return ResponseEntity.ok().body(products);
+    }
+
+    /**
+     * {@code GET  /products/filter/combined} : get products by combined filters.
+     *
+     * @param minPrice the minimum price (optional).
+     * @param maxPrice the maximum price (optional).
+     * @param categoryName the category name (optional).
+     * @param minRating the minimum rating (optional).
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of products in body.
+     */
+    @GetMapping("/filter/combined")
+    public ResponseEntity<List<Product>> getProductsByCombinedFilters(
+        @RequestParam(value = "minPrice", required = false) BigDecimal minPrice,
+        @RequestParam(value = "maxPrice", required = false) BigDecimal maxPrice,
+        @RequestParam(value = "categoryName", required = false) String categoryName,
+        @RequestParam(value = "minRating", required = false) Double minRating
+    ) {
+        LOG.debug(
+            "REST request to get Products by combined filters: price {} - {}, category {}, rating >= {}",
+            minPrice,
+            maxPrice,
+            categoryName,
+            minRating
+        );
+
+        List<Product> products;
+
+        // If all filters are provided
+        if (minPrice != null && maxPrice != null && categoryName != null && minRating != null) {
+            products = productRepository.findByPriceBetweenAndCategoryNameAndRatingGreaterThanEqual(
+                minPrice,
+                maxPrice,
+                categoryName,
+                minRating
+            );
+        }
+        // If price range and category are provided
+        else if (minPrice != null && maxPrice != null && categoryName != null) {
+            products = productService.findByPriceRangeAndCategory(minPrice, maxPrice, categoryName);
+        }
+        // If only price range is provided
+        else if (minPrice != null && maxPrice != null) {
+            products = productService.findByPriceRange(minPrice, maxPrice);
+        }
+        // If only category is provided
+        else if (categoryName != null) {
+            products = productService.findByCategoryName(categoryName);
+        }
+        // If only rating is provided
+        else if (minRating != null) {
+            products = productService.findByMinimumRating(minRating);
+        }
+        // If only max price is provided
+        else if (maxPrice != null) {
+            products = productService.findByMaxPrice(maxPrice);
+        }
+        // If only min price is provided
+        else if (minPrice != null) {
+            products = productService.findByMinPrice(minPrice);
+        }
+        // If no filters are provided, return all products
+        else {
+            products = productService.findAllProducts();
+        }
+
+        return ResponseEntity.ok().body(products);
     }
 }

@@ -1,32 +1,26 @@
-
 entity Category {
-  name String required maxlength(50) unique
-  description String maxlength(255)
+name String required maxlength(50) unique
+description String maxlength(255)
 }
-
 entity Product {
-  name String required maxlength(100)
-  description TextBlob
-  price BigDecimal required min(0)
-  imageUrl String maxlength(255)
-  rating Double min(0) max(5)
+name String required maxlength(100)
+description TextBlob
+price BigDecimal required min(0)
+imageUrl String maxlength(255)
+rating Double min(0) max(5)
 }
-
 enum Rating {
-  ONE,
-  TWO,
-  THREE,
-  FOUR,
-  FIVE
+ONE,
+TWO,
+THREE,
+FOUR,
+FIVE
 }
-
 relationship ManyToOne {
-  Product{category(name) required} to Category
-  Product{user(login)} to User with builtInEntity
+Product{category(name) required} to Category
+Product{user(login)} to User with builtInEntity
 }
-
 service Product with serviceClass
 service Category with serviceClass
-
 paginate Product with pagination
 paginate Category with pagination

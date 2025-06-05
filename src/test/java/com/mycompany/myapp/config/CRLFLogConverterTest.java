@@ -8,7 +8,10 @@ import static org.mockito.Mockito.when;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 import org.springframework.boot.ansi.AnsiColor;
@@ -71,6 +74,7 @@ class CRLFLogConverterTest {
     }
 
     @Test
+    @Timeout(value = 2, unit = TimeUnit.MINUTES)
     void transformShouldReplaceNewlinesAndCarriageReturnsWithUnderscoreWhenMarkersDoNotContainCRLFSafeMarkerAndLoggerIsNotSafe() {
         ILoggingEvent event = mock(ILoggingEvent.class);
         List<Marker> markers = Collections.emptyList();

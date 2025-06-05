@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Button, Col, Row } from 'reactstrap';
+import axios from 'axios';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -18,6 +19,24 @@ export const ProductDetail = () => {
   }, []);
 
   const productEntity = useAppSelector(state => state.product.entity);
+
+  // Track this product as recently viewed when the component loads and product data is available
+  useEffect(() => {
+    if (productEntity && productEntity.name) {
+      trackProductView(productEntity.name);
+    }
+  }, [productEntity]);
+
+  const trackProductView = async (productName: string) => {
+    try {
+      await axios.post('/api/products/recently-viewed', null, {
+        params: { productName },
+      });
+    } catch (error) {
+      console.error('Error tracking product view:', error);
+    }
+  };
+
   return (
     <Row>
       <Col md="8">

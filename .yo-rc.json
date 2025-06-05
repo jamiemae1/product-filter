@@ -17,7 +17,7 @@
     "enableTranslation": false,
     "entities": ["Category", "Product"],
     "feignClient": null,
-    "jhipsterVersion": "8.10.0",
+    "jhipsterVersion": "8.11.0",
     "jwtSecretKey": "NmEwYTM4NTExOWYwZDVkYzcwNTFhZWY1MzRjYmZiMjBlYzVmM2Q0NWM0MTE1YjliYTU4MGYxOTg0OWVlMDA2ODE5NDM1MDBkMjY3YTEwZGY0ZDJiMTM5YzE0ZTQ4ZTI1ZTc5NzhmMGViMDJmMDUwZTRiMjJkNWMxYmM0MDZiMWE=",
     "lastLiquibaseTimestamp": 1748965680000,
     "microfrontend": null,

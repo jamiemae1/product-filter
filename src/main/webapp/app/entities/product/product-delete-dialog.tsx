@@ -9,7 +9,6 @@ import { deleteEntity, getEntity } from './product.reducer';
 
 export const ProductDeleteDialog = () => {
   const dispatch = useAppDispatch();
-
   const pageLocation = useLocation();
   const navigate = useNavigate();
   const { id } = useParams<'id'>();

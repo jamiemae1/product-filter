@@ -1,12 +1,7 @@
----
-description: 
-globs: 
-alwaysApply: false
----
 ```json
 {
-  "name": "Product Filtering Platform",
-  "description": "Guides the AI to understand and generate code for a product filtering feature, allowing users to filter by price, category, and rating, with a focus on performance, usability, and accessibility.",
+  "name": "E-commerce Product Filtering and Recently Viewed Products",
+  "description": "Guides the AI to understand and generate code for an e-commerce platform with enhanced product filtering and recently viewed products features, focusing on user experience and performance.",
   "triggers": [
     {
       "type": "file_extension",
@@ -14,55 +9,48 @@ alwaysApply: false
     },
     {
       "type": "file_content",
-      "contains": ["product", "price", "category", "rating", "filter", "products", "price range", "customer rating", "minimum rating", "apply filters", "clear filters"]
+      "contains": ["product", "filter", "price", "category", "rating", "viewed", "ecommerce", "shop", "store", "browse", "item", "recently viewed"]
     },
     {
       "type": "prompt_content",
-      "contains": ["filter products", "price filtering", "category filtering", "rating filtering", "product listing", "product search", "e-commerce filtering"]
+      "contains": ["product filtering", "price range", "category filter", "customer rating", "recently viewed products", "e-commerce platform", "online shopping", "filter products"]
     }
   ],
   "actions": [
     {
       "type": "set_context",
       "context": {
-        "domain": "E-commerce Product Filtering",
-        "purpose": "Allowing users to filter products based on price, category, and rating to find desired items quickly.",
+        "domain": "E-commerce Platform",
+        "purpose": "Enhancing product discovery and user experience through filtering and recently viewed products.",
         "features": [
           "Price Range Filtering (min/max)",
-          "Category Filtering (single/multiple selection)",
+          "Category Filtering (single/multiple)",
           "Customer Rating Filtering (minimum rating)",
-          "Combinable Filters (price AND category AND rating)",
+          "Combined Filtering (price, category, rating)",
+          "Recently Viewed Products Tracking (session-based)",
           "Dynamic Product List Updates",
-          "No Results Found Message",
-          "Apply/Clear Filters Functionality",
-          "Product Count Display",
-          "Accessibility Compliance"
+          "No Results Message",
+          "Recently Viewed Products Display (title, thumbnail, price, link)",
+          "Session Persistence for Recently Viewed Products"
         ],
         "target_audience": "Online shoppers",
         "ui_ux_guidelines": {
           "design_system": "Use a consistent design system (e.g., Material Design, Bootstrap, or a custom one) that aligns with the chosen framework's best practices.",
           "responsiveness": "Ensure the UI is fully responsive across different devices (desktops, tablets, mobile phones).",
-          "interactivity": "Provide immediate feedback when filters are applied or cleared. Use loading indicators during filtering operations.",
+          "interactivity": "Incorporate interactive elements like sliders for price range, checkboxes for categories, and star ratings for customer ratings.",
           "data_visualization": "Display the number of products matching the current filter criteria.",
-          "accessibility": "Follow accessibility guidelines (WCAG) to ensure the filtering mechanism is usable by people with disabilities (e.g., ARIA attributes, keyboard navigation).",
-          "user_flow": "Design an intuitive user flow for applying and clearing filters. Filters should be easily discoverable and understandable.",
-          "performance": "Optimize the filtering process for fast loading times and smooth performance, especially with large product catalogs.",
-          "feedback": "Provide clear feedback to user actions, such as displaying the number of matching products or a 'No Results Found' message.",
-          "consistency": "Maintain consistent styling and behavior across all filter components.",
-          "modern_aesthetics": "Utilize modern UI patterns, clean layouts, and a visually appealing color palette for the filter components."
-        },
-        "business_logic": {
-          "price_range": "Allow filtering based on a minimum and maximum price. Validate input to ensure numeric values.",
-          "category": "Allow filtering based on one or more categories. Use a selectable list (checkboxes or multi-select dropdown).",
-          "rating": "Allow filtering based on a minimum customer rating. Use a selectable list (radio buttons or star rating selection).",
-          "combination": "Filters should be combinable, allowing users to refine their search based on multiple criteria.",
-          "no_results": "Display a clear message if no products match the selected filters."
+          "accessibility": "Follow accessibility guidelines (WCAG) to ensure the platform is usable by people with disabilities.  Ensure filters are accessible via keyboard navigation and screen readers.",
+          "user_flow": "Design intuitive user flows that minimize the number of steps required to apply and clear filters.  Ensure recently viewed products are easily accessible.",
+          "performance": "Optimize the filtering process for fast response times (under 2 seconds).  Optimize recently viewed product tracking to avoid performance bottlenecks.",
+          "feedback": "Provide clear and immediate feedback to user actions (e.g., loading indicators, filter application confirmations).",
+          "consistency": "Maintain consistent styling and behavior across all pages and components, especially for filter controls and product displays.",
+          "modern_aesthetics": "Utilize modern UI patterns, clean layouts, and a visually appealing color palette.  Ensure recently viewed products are displayed in a visually appealing and consistent manner."
         }
       }
     },
     {
         "type":"add_instruction",
-        "instruction":"When generating UI code or suggestions, prioritize responsiveness, interactivity, and accessibility. Ensure the UI aligns with the specified design system. Focus on creating intuitive user flows and providing clear feedback to user actions. Optimize for performance and maintain consistency across the platform. When generating backend code, focus on speed and efficiency in filtering large datasets. Ensure data validation and sanitization to prevent security vulnerabilities."
+        "instruction":"When generating UI code or suggestions, prioritize responsiveness, interactivity, and a modern aesthetic. Ensure the UI aligns with the specified design system and accessibility guidelines. Focus on creating intuitive user flows and providing clear feedback to user actions. Optimize for performance and maintain consistency across the platform. When generating backend code, focus on speed and efficiency in filtering and retrieving product data. Ensure recently viewed product data is handled efficiently and securely."
     }
   ]
 }

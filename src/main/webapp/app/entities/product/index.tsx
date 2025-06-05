@@ -7,12 +7,10 @@ import Product from './product';
 import ProductDetail from './product-detail';
 import ProductUpdate from './product-update';
 import ProductDeleteDialog from './product-delete-dialog';
-import { ProductFilter } from './product-filter';
 
 const ProductRoutes = () => (
   <ErrorBoundaryRoutes>
     <Route index element={<Product />} />
-    <Route path="filter" element={<ProductFilter />} />
     <Route path="new" element={<ProductUpdate />} />
     <Route path=":id">
       <Route index element={<ProductDetail />} />

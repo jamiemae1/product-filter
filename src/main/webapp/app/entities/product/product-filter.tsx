@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Card, CardBody, CardHeader, Col, FormGroup, Input, Label, Row, Badge, Alert, Spinner, Container } from 'reactstrap';
+import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faStar, faFilter, faTimesCircle, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faStar, faFilter, faTimesCircle, faSearch, faEye, faPlus, faPencilAlt, faTrash } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
+import { RecentlyViewed } from './recently-viewed';
 
 interface Product {
   id: number;
@@ -10,7 +12,7 @@ interface Product {
   description: string;
   price: number;
   imageUrl?: string;
-  rating: number;
+  rating: number | null;
   category: {
     id: number;
     name: string;
@@ -40,6 +42,7 @@ export const ProductFilter = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
   const [noResults, setNoResults] = useState(false);
+  const [recentlyViewedRefresh, setRecentlyViewedRefresh] = useState(0);
   const [filters, setFilters] = useState<FilterState>({
     minPrice: '',
     maxPrice: '',
@@ -119,7 +122,28 @@ export const ProductFilter = () => {
     }));
   };
 
-  const renderStars = (rating: number) => {
+  const trackProductView = async (productName: string) => {
+    try {
+      await axios.post('/api/products/recently-viewed', null, {
+        params: { productName },
+      });
+      // Trigger refresh of recently viewed component
+      setRecentlyViewedRefresh(prev => prev + 1);
+    } catch (error) {
+      console.error('Error tracking product view:', error);
+    }
+  };
+
+  const renderStars = (rating: number | null) => {
+    if (rating == null) {
+      // Return 5 empty stars for null/undefined ratings
+      const stars = [];
+      for (let i = 0; i < 5; i++) {
+        stars.push(<FontAwesomeIcon key={`empty-${i}`} icon={faStar} className="text-muted" />);
+      }
+      return stars;
+    }
+
     const stars = [];
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 !== 0;
@@ -146,6 +170,13 @@ export const ProductFilter = () => {
 
   return (
     <Container fluid className="py-4">
+      {/* Recently Viewed Products Section */}
+      <Row className="mb-4">
+        <Col xs={12}>
+          <RecentlyViewed refreshTrigger={recentlyViewedRefresh} />
+        </Col>
+      </Row>
+
       <Row>
         {/* Filter Sidebar */}
         <Col lg={3} md={4} className="mb-4">
@@ -248,12 +279,16 @@ export const ProductFilter = () => {
         {/* Product Grid */}
         <Col lg={9} md={8}>
           <div className="d-flex justify-content-between align-items-center mb-3">
-            <h2 className="mb-0">
+            <h2 className="mb-0" data-cy="ProductHeading">
               Products
               <Badge color="secondary" className="ms-2" data-cy="productCount">
                 {products.length} found
               </Badge>
             </h2>
+            <Button color="primary" tag={Link} to="/product/new" data-cy="entityCreateButton" className="ms-2">
+              <FontAwesomeIcon icon={faPlus} />
+              &nbsp; Create a new Product
+            </Button>
           </div>
 
           {loading ? (
@@ -266,53 +301,97 @@ export const ProductFilter = () => {
               <FontAwesomeIcon icon={faTimesCircle} className="me-2" />
               No products found matching your filters. Try adjusting your search criteria.
             </Alert>
-          ) : (
-            <Row>
-              {products.map(product => (
-                <Col key={product.id} xl={4} lg={6} md={12} className="mb-4">
-                  <Card className="h-100 shadow-sm product-card">
-                    <div className="position-relative">
-                      {product.imageUrl ? (
-                        <img
-                          src={product.imageUrl}
-                          alt={product.name}
-                          className="card-img-top"
-                          style={{ height: '200px', objectFit: 'cover' }}
-                        />
-                      ) : (
-                        <div className="card-img-top bg-light d-flex align-items-center justify-content-center" style={{ height: '200px' }}>
-                          <span className="text-muted">No Image</span>
-                        </div>
-                      )}
-                      <Badge color="primary" className="position-absolute top-0 end-0 m-2">
-                        {product.category?.name}
-                      </Badge>
-                    </div>
-                    <CardBody className="d-flex flex-column">
-                      <h5 className="card-title" data-cy="productName">
-                        {product.name}
-                      </h5>
-                      <p className="card-text text-muted small flex-grow-1">{product.description}</p>
-                      <div className="mt-auto">
-                        <div className="d-flex justify-content-between align-items-center mb-2">
-                          <div className="d-flex align-items-center">
-                            {renderStars(product.rating)}
-                            <span className="ms-2 text-muted">({product.rating.toFixed(1)})</span>
+          ) : products.length > 0 ? (
+            <div data-cy="entityTable">
+              <Row>
+                {products.map(product => (
+                  <Col key={product.id} xl={4} lg={6} md={12} className="mb-4">
+                    <Card className="h-100 shadow-sm product-card">
+                      <div className="position-relative">
+                        {product.imageUrl ? (
+                          <img
+                            src={product.imageUrl}
+                            alt={product.name}
+                            className="card-img-top"
+                            style={{ height: '200px', objectFit: 'cover' }}
+                          />
+                        ) : (
+                          <div
+                            className="card-img-top bg-light d-flex align-items-center justify-content-center"
+                            style={{ height: '200px' }}
+                          >
+                            <span className="text-muted">No Image</span>
+                          </div>
+                        )}
+                        <Badge color="primary" className="position-absolute top-0 end-0 m-2">
+                          {product.category?.name}
+                        </Badge>
+                      </div>
+                      <CardBody className="d-flex flex-column">
+                        <h5 className="card-title" data-cy="productName">
+                          <Link
+                            to={`/product/${product.id}`}
+                            className="text-decoration-none"
+                            onClick={() => trackProductView(product.name)}
+                          >
+                            {product.name}
+                          </Link>
+                        </h5>
+                        <p className="card-text text-muted small flex-grow-1">{product.description}</p>
+                        <div className="mt-auto">
+                          <div className="d-flex justify-content-between align-items-center mb-2">
+                            <div className="d-flex align-items-center">
+                              {renderStars(product.rating)}
+                              <span className="ms-2 text-muted">({product.rating != null ? product.rating.toFixed(1) : 'N/A'})</span>
+                            </div>
+                            <div className="btn-group">
+                              <Button
+                                size="sm"
+                                color="outline-info"
+                                onClick={() => trackProductView(product.name)}
+                                title="View details"
+                                data-cy="entityDetailsButton"
+                                tag={Link}
+                                to={`/product/${product.id}`}
+                              >
+                                <FontAwesomeIcon icon={faEye} />
+                              </Button>
+                              <Button
+                                size="sm"
+                                color="outline-primary"
+                                title="Edit"
+                                data-cy="entityEditButton"
+                                tag={Link}
+                                to={`/product/${product.id}/edit`}
+                              >
+                                <FontAwesomeIcon icon={faPencilAlt} />
+                              </Button>
+                              <Button
+                                size="sm"
+                                color="outline-danger"
+                                title="Delete"
+                                data-cy="entityDeleteButton"
+                                tag={Link}
+                                to={`/product/${product.id}/delete`}
+                              >
+                                <FontAwesomeIcon icon={faTrash} />
+                              </Button>
+                            </div>
+                          </div>
+                          <div className="d-flex justify-content-between align-items-center">
+                            <h4 className="text-primary mb-0" data-cy="productPrice">
+                              ${product.price.toFixed(2)}
+                            </h4>
+                            <small className="text-muted">by {product.user?.login}</small>
                           </div>
                         </div>
-                        <div className="d-flex justify-content-between align-items-center">
-                          <h4 className="text-primary mb-0" data-cy="productPrice">
-                            ${product.price.toFixed(2)}
-                          </h4>
-                          <small className="text-muted">by {product.user?.login}</small>
-                        </div>
-                      </div>
-                    </CardBody>
-                  </Card>
-                </Col>
-              ))}
-            </Row>
-          )}
+                      </CardBody>
+                    </Card>
+                  </Col>
+                ))}
+              </Row>
+            </div>
+          ) : null}
         </Col>
       </Row>
     </Container>

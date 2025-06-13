@@ -6,6 +6,6 @@
     "paths": {
       "app/*": ["src/main/webapp/app/*"]
     },
-    "types": ["jest", "webpack-env"]
+    "types": ["jest", "webpack-env", "@testing-library/jest-dom"]
   }
 }

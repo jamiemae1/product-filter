@@ -30,7 +30,7 @@ module.exports = {
     ['jest-sonar', { outputDirectory: './target/test-results/jest', outputName: 'TESTS-results-sonar.xml' }],
   ],
   testPathIgnorePatterns: ['<rootDir>/node_modules/'],
-  setupFiles: ['<rootDir>/src/main/webapp/app/setup-tests.ts'],
+  setupFilesAfterEnv: ['<rootDir>/src/main/webapp/app/setup-tests.ts'],
   globals: {
     ...require('./webpack/environment'),
     DEVELOPMENT: false,
